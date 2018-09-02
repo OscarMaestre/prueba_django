@@ -12,7 +12,7 @@ class RepartoForm(ModelForm):
 class AsignacionForm(ModelForm):
     class Meta:
         model=Asignacion
-        fields= ['profesor', 'modulo']
+        fields= ['profesor', 'modulo', 'reparto']
             
 def crear_reparto(peticion):
     if peticion.method=="POST":
@@ -31,23 +31,30 @@ def crear_reparto(peticion):
         
         
 def obtener_modulos_sin_asignar_en_este_reparto(nombre_reparto):
-    modulos_sin_asignar=[]
-    asignacion=Asignacion.objects.filter()
+    reparto=Reparto.objects.get(nombre=nombre_reparto)
+    print(reparto)
+    modulos_ya_asignados=reparto.asignacion_set.all().values("om")
+    modulos_sin_asignar=Modulo.objects.exclude(modulo__in=modulos_ya_asignados)
+    print(modulos_sin_asignar)
     
+    return modulos_sin_asignar
 def repartir(peticion, nombre_reparto):
     if peticion.method=="POST":
         asignacion=AsignacionForm(peticion.POST)
-        objeto_reparto=Reparto.objects.get(nombre=nombre_reparto)
-        asignacion.reparto_id=objeto_reparto.id
         asignacion.save()
         
-        return redirect('repartir', nombre_reparto=nombre_del_reparto)
+        return redirect('repartir', nombre_reparto=nombre_reparto)
     else:
         diccionario=dict()
         diccionario["nombre_reparto"]=nombre_reparto
         profesores=Profesor.objects.all()
         diccionario["profesores"]=profesores
-        asignacion=AsignacionForm()
+        objeto_reparto=Reparto.objects.get(nombre=nombre_reparto)
+        modulos_no_asignados=obtener_modulos_sin_asignar_en_este_reparto(nombre_reparto)
+        asignacion=AsignacionForm(
+            initial={'reparto':objeto_reparto, 'modulo':modulos_no_asignados}
+        )
+        
         diccionario["asignacion"]=asignacion
         return render(peticion, "reparto/repartir.html", diccionario)
     

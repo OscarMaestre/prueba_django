@@ -30,4 +30,5 @@ class Asignacion(models.Model):
     profesor    =       models.ForeignKey(Profesor, on_delete=models.CASCADE)
     modulo      =       models.ForeignKey(Modulo,   on_delete=models.CASCADE)
     reparto     =       models.ForeignKey(Reparto,  on_delete=models.CASCADE)
-    
+    def __str__(self):
+        return self.reparto.nombre+"--"+str(self.profesor)+"--"+str(self.modulo) 
