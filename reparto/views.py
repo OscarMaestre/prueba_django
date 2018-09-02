@@ -10,6 +10,8 @@ class RepartoForm(ModelForm):
         fields= ['nombre']
 
 class AsignacionForm(ModelForm):
+    
+        
     class Meta:
         model=Asignacion
         fields= ['profesor', 'modulo', 'reparto']
@@ -33,11 +35,16 @@ def crear_reparto(peticion):
 def obtener_modulos_sin_asignar_en_este_reparto(nombre_reparto):
     reparto=Reparto.objects.get(nombre=nombre_reparto)
     print(reparto)
-    modulos_ya_asignados=reparto.asignacion_set.all().values("om")
-    modulos_sin_asignar=Modulo.objects.exclude(modulo__in=modulos_ya_asignados)
+    modulos_ya_asignados=reparto.asignacion_set.all().values("modulo")
+    modulos_sin_asignar=Modulo.objects.all()
+    print("Conjunto global")
     print(modulos_sin_asignar)
+    print("Ya asignados")
+    print(modulos_ya_asignados)
+    diferencia=modulos_sin_asignar.exclude(pk__in=modulos_ya_asignados)
+    print(diferencia)
     
-    return modulos_sin_asignar
+    return diferencia
 def repartir(peticion, nombre_reparto):
     if peticion.method=="POST":
         asignacion=AsignacionForm(peticion.POST)
@@ -51,10 +58,13 @@ def repartir(peticion, nombre_reparto):
         diccionario["profesores"]=profesores
         objeto_reparto=Reparto.objects.get(nombre=nombre_reparto)
         modulos_no_asignados=obtener_modulos_sin_asignar_en_este_reparto(nombre_reparto)
+        print("Modulos no asignados")
+        print(modulos_no_asignados)
         asignacion=AsignacionForm(
-            initial={'reparto':objeto_reparto, 'modulo':modulos_no_asignados}
+            initial={'reparto':objeto_reparto},
+            
         )
-        
+        asignacion.fields["modulo"].queryset=modulos_no_asignados;
         diccionario["asignacion"]=asignacion
         return render(peticion, "reparto/repartir.html", diccionario)
     
