@@ -1,0 +1,7 @@
+<h1>Repartiendo</h1>
+<h4>Guardando con nombre {{nombre_reparto}}</h4>
+<form action="{% url 'repartir' nombre_reparto %}" method="post">
+{% csrf_token %}
+{{asignacion}}
+<input type="submit" value="Asignar">
+</form>
