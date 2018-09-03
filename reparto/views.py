@@ -125,3 +125,10 @@ def borrar(peticion, modulo_id, profesor_id, nombre_reparto):
     print(asignacion)
     asignacion.delete()
     return redirect('repartir', nombre_reparto=nombre_reparto)
+
+
+def index(peticion):
+    repartos=Reparto.objects.all()
+    diccionario=dict()
+    diccionario["repartos"]=repartos
+    return render(peticion, "reparto/index.html", diccionario)

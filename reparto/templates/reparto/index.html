@@ -1,0 +1,15 @@
+{%extends 'reparto/base.html'%}
+{%block contenido%}
+<h2>Inicio</h2>
+<ul>
+<li><a href="{% url 'crear_reparto'%}">Crear un reparto nuevo </a></li>
+<li>Repartos</li>
+<ul>
+{%for r in repartos%}
+<li>
+    <a href="{% url 'repartir' r.nombre %}">Reparto {{r.nombre}}</a>
+</li>
+{%endfor%}
+</ul>
+</ul>
+{%endblock%}

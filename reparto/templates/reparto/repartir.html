@@ -1,6 +1,6 @@
 {%extends 'reparto/base.html'%}
 {%block contenido%}
-<h4>Guardando con nombre {{nombre_reparto}}</h4>
+<h4>Guardando con nombre {{nombre_reparto}} (<a href="{% url 'index' %}">Volver al inicio</a>)</h4>
 <form action="{% url 'repartir' nombre_reparto %}" method="post">
 {% csrf_token %}
 {{asignacion}}
@@ -21,7 +21,7 @@
         <td>
         {%for modulo in p.modulos%}
         {{modulo}}
-        <a  onclick="return confirm('¿Seguro que quieres borrar?')"   href="{%url 'borrar' modulo.id p.id nombre_reparto%}">Borrar</a>
+        <a  onclick="return confirm('¿Seguro que quieres borrar?');"   href="{%url 'borrar' modulo.id p.id nombre_reparto%}">Borrar</a>
         <br/>
         {%endfor%}
         </td>
