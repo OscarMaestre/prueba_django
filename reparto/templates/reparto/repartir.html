@@ -1,4 +1,5 @@
-<h1>Repartiendo</h1>
+{%extends 'reparto/base.html'%}
+{%block contenido%}
 <h4>Guardando con nombre {{nombre_reparto}}</h4>
 <form action="{% url 'repartir' nombre_reparto %}" method="post">
 {% csrf_token %}
@@ -7,7 +8,7 @@
 </form>
 
 <br/>
-<table border='1'>
+<table border='1' class="table">
     <tr>
         <td>Profesor</td>
         <td>Total horas</td>
@@ -20,10 +21,11 @@
         <td>
         {%for modulo in p.modulos%}
         {{modulo}}
-        <a href="{%url 'borrar' modulo.id p.id nombre_reparto%}">Borrar</a>
+        <a  onclick="return confirm('¿Seguro que quieres borrar?')"   href="{%url 'borrar' modulo.id p.id nombre_reparto%}">Borrar</a>
         <br/>
         {%endfor%}
         </td>
     </tr>
     {%endfor%}
 </table>
+{%endblock%}
