@@ -5,3 +5,25 @@
 {{asignacion}}
 <input type="submit" value="Asignar">
 </form>
+
+<br/>
+<table border='1'>
+    <tr>
+        <td>Profesor</td>
+        <td>Total horas</td>
+        <td>Modulos</td>
+    </tr>
+    {%for p in informacion_profesores%}
+    <tr>
+        <td>{{p.nombre}}</td>
+        <td>{{p.horas}}</td>
+        <td>
+        {%for modulo in p.modulos%}
+        {{modulo}}
+        <a href="{%url 'borrar' modulo.id p.id nombre_reparto%}">Borrar</a>
+        <br/>
+        {%endfor%}
+        </td>
+    </tr>
+    {%endfor%}
+</table>
