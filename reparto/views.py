@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import render,redirect
 from django.forms import ModelForm
 from reparto.models import Reparto, Profesor, Modulo, Asignacion
@@ -44,12 +45,12 @@ class AsignacionForm(ModelForm):
             
 def crear_reparto(peticion):
     if peticion.method=="POST":
-        print("Has enviado datos")
+        #print("Has enviado datos")
         
         formulario=RepartoForm(peticion.POST)
         formulario.save()
         nombre_del_reparto=formulario.cleaned_data["nombre"]
-        return redirect('repartir', nombre_reparto=nombre_del_reparto)
+        return redirect('repartir2', nombre_reparto=nombre_del_reparto)
     else:
         formulario_creacion_reparto=RepartoForm()
         
@@ -80,7 +81,7 @@ def get_datos_profesores(nombre_reparto):
     lista_profesores=ListaProfesores()
     for p in profesores:
         lista_profesores.anadir_profesor(p)
-    print(asignaciones.all())
+    #print(asignaciones.all())
     for a in asignaciones.all():
         #print(a)
         modulo=a.modulo
@@ -124,7 +125,7 @@ def borrar(peticion, modulo_id, profesor_id, nombre_reparto):
     print("Borrando")
     print(asignacion)
     asignacion.delete()
-    return redirect('repartir', nombre_reparto=nombre_reparto)
+    return redirect('repartir2', nombre_reparto=nombre_reparto)
 
 
 def index(peticion):
@@ -132,3 +133,61 @@ def index(peticion):
     diccionario=dict()
     diccionario["repartos"]=repartos
     return render(peticion, "reparto/index.html", diccionario)
+
+
+
+def extraer_modulo_por_turno(modulos, nombre_turno):
+    lista=[]
+    for m in modulos:
+        if m.turno==nombre_turno:
+            lista.append(m)
+    print()
+    return lista
+
+def repartir2(peticion, nombre_reparto):
+    if peticion.method=="POST":
+        try:
+            print(peticion.POST)
+            modulo_id=peticion.POST["modulo"]
+            profesor_id=peticion.POST["profesor"]
+            reparto=nombre_reparto
+            print(modulo_id)
+            print(profesor_id)
+            objeto_modulo=Modulo.objects.get(id=modulo_id)
+            objeto_reparto=Reparto.objects.get(nombre=nombre_reparto)
+            
+            asignacion=Asignacion()
+            asignacion.modulo_id=modulo_id
+            asignacion.profesor_id=profesor_id
+            asignacion.reparto_id=objeto_reparto.id
+            asignacion.save()
+        except Exception as e:
+            print("Faltan datos")
+            print(e)
+        
+        return redirect('repartir2', nombre_reparto=nombre_reparto)
+    else:
+        diccionario=dict()
+        diccionario["nombre_reparto"]=nombre_reparto
+        profesores=Profesor.objects.all()
+        diccionario["profesores"]=profesores
+        objeto_reparto=Reparto.objects.get(nombre=nombre_reparto)
+        modulos_no_asignados=obtener_modulos_sin_asignar_en_este_reparto(nombre_reparto)
+        #print("Modulos no asignados")
+        #print(modulos_no_asignados)
+        asignacion=AsignacionForm(
+            initial={'reparto':objeto_reparto},
+            
+        )
+        asignacion.fields["modulo"].queryset=modulos_no_asignados;
+        diccionario["modulos"]=modulos_no_asignados
+        
+        diccionario["modulos_matinales"]=extraer_modulo_por_turno(modulos_no_asignados, "mañana")
+        diccionario["modulos_tarde"]=extraer_modulo_por_turno(modulos_no_asignados, "tarde")
+        diccionario["modulos_elearning"]=extraer_modulo_por_turno(modulos_no_asignados, "elearning")
+        #print(diccionario["modulos_matinales"])
+        diccionario["asignacion"]=asignacion
+        diccionario["informacion_profesores"]=get_datos_profesores(nombre_reparto)
+        return render(peticion, "reparto/repartir2.html", diccionario)
+    
+    
